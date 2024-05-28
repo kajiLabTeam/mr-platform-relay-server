@@ -1,0 +1,14 @@
+services:
+    golang:
+        container_name: ${GO_CONTAINER_HOST}
+        hostname: ${GO_HOST}
+        tty: true
+        env_file: .env
+        build:
+            context: .
+            dockerfile: ./docker/go/Dockerfile
+        volumes:
+            - ./src:/go/src/app
+            - ./docker/go/log:/go/src/log
+        ports:
+            - 8084:8000

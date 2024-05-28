@@ -19,3 +19,11 @@
 
 # Go workspace file
 go.work
+
+# Log file
+/docker/go/log/*
+
+# Environment file
+.env
+
+.DS_Store
