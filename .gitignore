@@ -27,3 +27,5 @@ go.work
 .env
 
 .DS_Store
+
+demo/
