@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kajiLabTeam/mr-platform-relay-server/common"
+	"github.com/kajiLabTeam/mr-platform-relay-server/service"
 )
 
 func GetEstimation(c *gin.Context) {
@@ -121,9 +122,10 @@ func GetEstimation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"x": absoluteAddress.X,
-		"y": absoluteAddress.Y,
-		"z": absoluteAddress.Z,
-	})
+	userResponse,err := service.DecideContents(absoluteAddress)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, userResponse)
 }
