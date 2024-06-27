@@ -7,7 +7,7 @@ type AbsoluteAddress struct {
 }
 
 type RecommendServerResponse struct {
-	ContentIds []string `json:"contentsIds"`
+	ContentIds []string `json:"contentIds"`
 }
 
 type DigitalTwinServerRequest struct {
@@ -21,19 +21,19 @@ type Rotation struct {
 }
 
 type ResponseHtml2d struct {
-	ContentId string   `json:"contentId"`
+	ContentId string          `json:"contentId"`
 	Location  AbsoluteAddress `json:"location"`
-	Rotation  Rotation `json:"rotation"`
-	TextType  string   `json:"textType"`
-	TextURL   string   `json:"textUrl"`
-	StyleURL  string   `json:"styleUrl"`
+	Rotation  Rotation        `json:"rotation"`
+	TextType  string          `json:"textType"`
+	TextURL   string          `json:"textUrl"`
+	StyleURL  string          `json:"styleUrl"`
 }
 
 type ResponseModel3d struct {
-	ContentId    string   `json:"contentId"`
+	ContentId    string          `json:"contentId"`
 	Location     AbsoluteAddress `json:"location"`
-	Rotation     Rotation `json:"rotation"`
-	PresignedURL string   `json:"presignedUrl"`
+	Rotation     Rotation        `json:"rotation"`
+	PresignedURL string          `json:"presignedUrl"`
 }
 
 type DigitalTwinServerResponse struct {

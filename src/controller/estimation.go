@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -24,68 +25,22 @@ func GetEstimation(c *gin.Context) {
 		return
 	}
 
-	locationServerUrl := os.Getenv("LOCATION_ESTIMATION_SERVER_URL")
-	endPoint := locationServerUrl + "/api/estimation/absolute"
-
 	var b bytes.Buffer
 	writer := multipart.NewWriter(&b)
 
-	// マルチパートフォームをコピー
-	for _, headers := range multipartForm.File {
-		for _, header := range headers {
-			file, err := header.Open()
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message": "failed to open file",
-				})
-				return
-			}
-			defer file.Close()
+	lat := c.PostForm("latitude")
+	lon := c.PostForm("longitude")
 
-			part, err := writer.CreateFormFile("rawDataFile", header.Filename)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message": "failed to create form file",
-				})
-				return
-			}
-
-			_, err = io.Copy(part, file)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message": "failed to copy file",
-				})
-				return
-			}
-		}
-	}
-
-	latitude, err := strconv.ParseFloat(c.PostForm("latitude"), 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid latitude value",
-		})
-		return
-	}
-
-	longitude, err := strconv.ParseFloat(c.PostForm("longitude"), 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "invalid longitude value",
-		})
-		return
-	}
-
-	_ = writer.WriteField("latitude", strconv.FormatFloat(latitude, 'f', -1, 64))
-	_ = writer.WriteField("longitude", strconv.FormatFloat(longitude, 'f', -1, 64))
-
-	err = writer.Close()
+	err = copyMultipartFromData(multipartForm, writer, b ,lat,lon)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "failed to close writer",
+			"message": "failed to copy multipart form",
 		})
 		return
 	}
+
+	locationServerUrl := os.Getenv("LOCATION_ESTIMATION_SERVER_URL")
+	endPoint := locationServerUrl + "/api/estimation/absolute"
 
 	// リクエストを作成
 	req, err := http.NewRequest("POST", endPoint, &b)
@@ -122,10 +77,67 @@ func GetEstimation(c *gin.Context) {
 		return
 	}
 
-	userResponse,err := service.DecideContents(absoluteAddress)
+	userResponse, err := service.DecideContents(absoluteAddress)
+	log.Println(userResponse)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	//userResponse.DigitalTwinServerResponse.ResponseHtml2dsとかuserResponse.DigitalTwinServerResponse.ResponseHtml2dsが空の場合、nullにするのではなく、空の配列を返す
+	if len(userResponse.DigitalTwinServerResponse.ResponseHtml2ds) == 0 {
+		userResponse.DigitalTwinServerResponse.ResponseHtml2ds = []common.ResponseHtml2d{}
+	}
+	if len(userResponse.DigitalTwinServerResponse.ResponseModel3ds) == 0 {
+		userResponse.DigitalTwinServerResponse.ResponseModel3ds = []common.ResponseModel3d{}
+	}
 	c.JSON(http.StatusOK, userResponse)
+}
+
+func copyMultipartFromData(multipartForm *multipart.Form, writer *multipart.Writer, b bytes.Buffer,lat string, lon string) error {
+	// マルチパートフォームをコピー
+	for _, headers := range multipartForm.File {
+		for _, header := range headers {
+			file, err := header.Open()
+			if err != nil {
+				log.Println("failed to open file")
+				return err
+			}
+			defer file.Close()
+
+			part, err := writer.CreateFormFile("rawDataFile", header.Filename)
+			if err != nil {
+				log.Println("failed to create form file")
+				return err
+			}
+
+			_, err = io.Copy(part, file)
+			if err != nil {
+				log.Println("failed to copy file")
+				return err
+			}
+		}
+	}
+
+	latitude, err := strconv.ParseFloat(lat, 64)
+	if err != nil {
+		log.Println("failed to parse latitude")
+		return err
+	}
+
+	longitude, err := strconv.ParseFloat(lon, 64)
+	if err != nil {
+		log.Println("failed to parse longitude")
+		return err
+	}
+
+	_ = writer.WriteField("latitude", strconv.FormatFloat(latitude, 'f', -1, 64))
+	_ = writer.WriteField("longitude", strconv.FormatFloat(longitude, 'f', -1, 64))
+
+	err = writer.Close()
+	if err != nil {
+		log.Println("failed to close writer")
+		return err
+	}
+	return nil
 }
