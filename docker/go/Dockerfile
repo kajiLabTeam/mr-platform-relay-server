@@ -1,5 +1,5 @@
 # goのバージョン
-FROM golang:1.20.10-alpine3.17
+FROM golang:1.22.5-alpine3.20
 
 # OSのインストール済みのパッケージをバージョンアップ&必要なパッケージをインストール
 RUN apk upgrade --update && \
@@ -9,6 +9,6 @@ RUN apk upgrade --update && \
 WORKDIR /go/src/app/
 
 # ホストPCの[./src]フォルダーを[/go/src/app/]フォルダーにコピー
-ADD ./src .
+ADD ./mr-platform-relay-server/src .
 
 CMD ["go", "run", "main.go"]
