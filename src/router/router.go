@@ -20,9 +20,9 @@ func Init() {
 	r.GET("/hello", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello World!!")
 	})
-	r.POST("/api/estimation/get", controller.GetEstimation)
+	r.POST("/api/contents", controller.UserContentsEstimation)
 
-	// サーバーの起動状態を表示しながら、ポート8084でサーバーを起動する
+	// サーバーの起動状態を表示
 	if err := r.Run("0.0.0.0:8000"); err != nil {
 		fmt.Println("サーバーの起動に失敗しました:", err)
 	} else {
