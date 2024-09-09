@@ -8,7 +8,7 @@ import (
 	"github.com/kajiLabTeam/mr-platform-relay-server/service"
 )
 
-func GetContents(c *gin.Context) {
+func UserContentsEstimation(c *gin.Context) {
 	userId, err := common.AuthWithGetID(c.Request.Header)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())

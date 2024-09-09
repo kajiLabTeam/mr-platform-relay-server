@@ -20,7 +20,7 @@ func Init() {
 	r.GET("/hello", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello World!!")
 	})
-	r.POST("/api/contents", controller.GetContents)
+	r.POST("/api/contents", controller.UserContentsEstimation)
 
 	// サーバーの起動状態を表示
 	if err := r.Run("0.0.0.0:8000"); err != nil {
