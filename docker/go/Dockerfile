@@ -11,4 +11,8 @@ WORKDIR /go/src/app/
 # ホストPCの[./src]フォルダーを[/go/src/app/]フォルダーにコピー
 ADD ./mr-platform-relay-server/src .
 
-CMD ["go", "run", "main.go"]
+# アプリケーションをビルド
+RUN go build -o /go/bin/app .
+
+# コンテナ起動時に実行するコマンド
+CMD ["/go/bin/app"]
